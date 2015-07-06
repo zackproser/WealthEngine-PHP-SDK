@@ -12,6 +12,7 @@ require_once(__DIR__ . '/lib/Validator.php');
  *
  * @author Zack Proser <zackproser@gmail.com>
  * 
+ * @returns WealthEngine\API\HttpClient
  */
 class HttpClient {
 
