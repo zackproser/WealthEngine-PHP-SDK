@@ -4,8 +4,8 @@ use WealthEngine\API\HttpClient;
 
 require './lib/WealthEngine-SDK.php'; 
 
-//Instantiate the WealthEngine API Client - set API environment to production
-$WeAPI = new HttpClient('ddb26e11-9348-4ead-9e2a-5a3b80a01b52', 'prod');
+//Instantiate the WealthEngine API Client - set API environment to production - set API match type to full
+$WeAPI = new HttpClient('ddb26e11-9348-4ead-9e2a-5a3b80a01b52', 'prod', 'full');
 
 //Get profile by email and [names]
 $result = $WeAPI->getProfileByEmailAddress('zackproser@gmail.com', 'zack', 'proser'); 

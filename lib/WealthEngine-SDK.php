@@ -33,10 +33,28 @@ class HttpClient {
 	CONST WEAPIROOT_SANDBOX = 'https://api-sandbox.wealthengine.com/v1/'; 
 
 	/**
+	 * The basic WealthEngine API Match Type
+	 */
+
+	CONST WEAPIMATCHTYPE_BASIC = 'basic';
+
+	/**
+	 * The full WealthEngine API Match Type
+	 */
+
+	CONST WEAPIMATCHTYPE_FULL = 'full';
+
+	/**
 	 * The apiRoot to call - depending upon the requested environment
 	 * @var string
 	 */
 	private $apiRoot; 
+
+	/**
+	 * The request match type - full or basic
+	 * @var string
+	 */
+	private $apiMatchType; 
 
 	/**
 	 * Validation class
@@ -48,14 +66,17 @@ class HttpClient {
 	 * Instantiate and return the HttpClient class
 	 * @param string $apiKey The user's API Key from dev.wealthengine.com
 	 * @param string $env    The WealthEngine API environment that should be called
+	 * @param string $matchType The WealthEngine API match type that should be used
 	 *
 	 * @return  \WealthEngine\API\HttpClient
 	 */
-	public function __construct($apiKey, $env) 
+	public function __construct($apiKey, $env, $matchType) 
 	{
 		$this->setAPIKey($apiKey); 
 
 		$this->setEnvironment($env); 
+
+		$this->setMatchType($matchType);
 
 		$this->validator = new Validator(); 
 
@@ -117,6 +138,38 @@ class HttpClient {
 	}
 
 	/**
+	 * Ensure the $matchType passed is a valid WealthEngine API match type
+	 * 
+	 * @param string $matchType name of the API match type that should be used
+	 *
+	 * @return  void
+	 */
+	private function setMatchType($matchType)
+	{
+		if (gettype($matchType) != 'string' || trim($matchType) == '')
+		{
+			throw new Exception('Please specify either FULL or BASIC match type ' . __FILE__ . __METHOD__ . __LINE__); 
+		}
+
+		$matchType = trim(strtolower($matchType));
+
+		//Set the desired match type
+		switch($matchType)
+		{
+			case 'full':
+				$this->matchType = self::WEAPIMATCHTYPE_FULL; 
+				break; 
+			case 'basic':
+				$this->matchType = self::WEAPIMATCHTYPE_BASIC; 
+				break; 
+			default: 
+				throw new Exception('You must set a valid match type: full or basic ' . __FILE__ . __METHOD__ . __LINE__); 
+		}
+
+		return;
+	}
+
+	/**
 	 * Sets the default Http headers common to all requests
 	 * 
 	 * @param \Curl $ch The curl handle whose options will be set
@@ -151,7 +204,7 @@ class HttpClient {
 	public function getProfileByEmailAddress($email_address, $first_name = null, $last_name = null)
 	{
 		//Set the API url to POST to 
-		$endpoint = $this->apiRoot . 'profile/find_one/by_email/basic'; 
+		$endpoint = $this->apiRoot . 'profile/find_one/by_email/' . $this->matchType; 
 
 		//Create the POST params object
 		$post_fields = array(
@@ -196,7 +249,7 @@ class HttpClient {
 	 */
 	public function getProfileByAddress($last_name, $first_name, $address_line1, $city, $state, $zip)
 	{
-		$endpoint = $this->apiRoot . 'profile/find_one/by_address/basic'; 
+		$endpoint = $this->apiRoot . 'profile/find_one/by_address/' . $this->matchType; 
 
 		$post_fields = array(
 			'last_name' => isset($last_name) ? $last_name : null, 
@@ -240,7 +293,7 @@ class HttpClient {
 	public function getProfileByPhone($phone, $last_name = null, $first_name = null)
 	{
 		//Set endpoint for API call
-		$endpoint = $this->apiRoot . 'profile/find_one/by_phone/basic'; 
+		$endpoint = $this->apiRoot . 'profile/find_one/by_phone/' . $this->matchType; 
 
 		$post_fields = array(
 			'phone' => $phone,
